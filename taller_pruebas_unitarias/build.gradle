@@ -1,0 +1,48 @@
+// Clase 1 - Pruebas unitarias/Taller-Codigo/build.gradle
+
+plugins {
+    id 'java'
+}
+
+group = 'com.universidad'
+version = '1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // JUnit 5 (Jupiter) - Motor de pruebas unitarias
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Mockito - Framework de mocking
+    testImplementation 'org.mockito:mockito-core:5.21.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.21.0'
+}
+
+ configurations {
+     mockitoAgent
+ }
+
+
+test {
+    useJUnitPlatform()
+    jvmArgumentProviders.add(new CommandLineArgumentProvider() {
+        @Override
+        Iterable<String> asArguments() {
+            return ["-javaagent:${configurations.testRuntimeClasspath.find { it.name.contains("mockito-core") }}"]
+        }
+    })
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}
