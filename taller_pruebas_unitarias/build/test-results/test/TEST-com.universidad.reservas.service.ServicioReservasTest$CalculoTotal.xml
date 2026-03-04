@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="Bonus - Cálculo del total" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-03-03T23:57:55.388Z" hostname="PIMAGE" time="0.839">
+<testsuite name="Bonus - Cálculo del total" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-03-04T00:31:04.163Z" hostname="PIMAGE" time="1.279">
   <properties/>
-  <testcase name="calcularTotal: sin descuento para menos de 7 noches" classname="com.universidad.reservas.service.ServicioReservasTest$CalculoTotal" time="0.833"/>
-  <testcase name="calcularTotal: con descuento del 10% para 7+ noches" classname="com.universidad.reservas.service.ServicioReservasTest$CalculoTotal" time="0.004"/>
+  <testcase name="calcularTotal: sin descuento para menos de 7 noches" classname="com.universidad.reservas.service.ServicioReservasTest$CalculoTotal" time="1.25"/>
+  <testcase name="calcularTotal: con descuento del 10% para 7+ noches" classname="com.universidad.reservas.service.ServicioReservasTest$CalculoTotal" time="0.006"/>
   <system-out><![CDATA[]]></system-out>
   <system-err><![CDATA[]]></system-err>
 </testsuite>
