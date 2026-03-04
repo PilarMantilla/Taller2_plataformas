@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Manejo de errores - Excepciones esperadas" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-03-03T23:57:56.241Z" hostname="PIMAGE" time="0.019">
+  <properties/>
+  <testcase name="Debe lanzar IllegalStateException si la habitación NO está disponible" classname="com.universidad.reservas.service.ServicioReservasTest$ManejoErrores" time="0.01"/>
+  <testcase name="Debe lanzar IllegalStateException cuando el pago es rechazado" classname="com.universidad.reservas.service.ServicioReservasTest$ManejoErrores" time="0.005"/>
+  <testcase name="Debe lanzar IllegalArgumentException si la fecha de salida no es posterior a la de entrada" classname="com.universidad.reservas.service.ServicioReservasTest$ManejoErrores" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

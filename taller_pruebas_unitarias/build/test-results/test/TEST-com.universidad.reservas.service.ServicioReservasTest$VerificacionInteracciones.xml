@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="Verificación de interacciones con mocks" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-03-03T23:57:56.230Z" hostname="PIMAGE" time="0.008">
+  <properties/>
+  <testcase name="Debe enviar notificación exactamente UNA vez después de una reserva exitosa" classname="com.universidad.reservas.service.ServicioReservasTest$VerificacionInteracciones" time="0.003"/>
+  <testcase name="Debe llamar a procesarCobro con el monto correcto (sin descuento)" classname="com.universidad.reservas.service.ServicioReservasTest$VerificacionInteracciones" time="0.002"/>
+  <testcase name="NO debe enviar notificación si el pago fue rechazado" classname="com.universidad.reservas.service.ServicioReservasTest$VerificacionInteracciones" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

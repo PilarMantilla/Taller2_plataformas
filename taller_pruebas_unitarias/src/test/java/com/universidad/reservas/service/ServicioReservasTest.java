@@ -52,13 +52,14 @@ class ServicioReservasTest {
 
     @BeforeEach
     void setUp() {
-        // TODO: Inicializa el SUT (servicioReservas) inyectándole los dos mocks.
-        // Luego, crea los datos de prueba:
-        // - habitacionDisponible: id="H-101", tipo DOBLE, precio 120.0, disponible=true
-        // - habitacionNoDisponible: id="H-202", tipo SUITE, precio 250.0,
-        // disponible=false
-        // - hoy: la fecha de hoy (LocalDate.now())
-        // - manana: la fecha de mañana (hoy.plusDays(1))
+        // Inicializa el SUT con los mocks
+        servicioReservas = new ServicioReservas(pasarelaPago, servicioNotificacion);
+
+        // datos de prueba reutilizables
+        habitacionDisponible = new Habitacion("H-101", TipoHabitacion.DOBLE, 120.0, true);
+        habitacionNoDisponible = new Habitacion("H-202", TipoHabitacion.SUITE, 250.0, false);
+        hoy = LocalDate.now();
+        manana = hoy.plusDays(1);
     }
 
     // ═══════════════════════════════════════════════════════════════════
@@ -72,44 +73,41 @@ class ServicioReservasTest {
         @Test
         @DisplayName("Debe crear una reserva exitosa para una estancia de 3 noches")
         void debeCrearReservaExitosaParaTresNoches() {
-            // TODO: Implementa esta prueba siguiendo el patrón AAA.
-            //
-            // ARRANGE:
-            // - Configura el mock de pasarelaPago para que retorne true
-            // cuando se llame procesarCobro() con eq("Carlos Pérez") y eq(360.0)
-            // (3 noches × $120.0/noche = $360.0).
-            // Pista: usa when(pasarelaPago.procesarCobro(eq(...),
-            // eq(...))).thenReturn(true)
-            //
-            // ACT:
-            // - Llama a servicioReservas.crearReserva() con:
-            // huesped="Carlos Pérez", habitacionDisponible, hoy, hoy.plusDays(3)
-            //
-            // ASSERT:
-            // - assertNotNull(reserva)
-            // - assertEquals("Carlos Pérez", reserva.huesped())
-            // - assertEquals(360.0, reserva.totalPagado())
-            // - assertNotNull(reserva.codigoReserva())
+            // ARRANGE
+            when(pasarelaPago.procesarCobro(eq("Carlos Pérez"), eq(360.0)))
+                    .thenReturn(true);
+
+            // ACT
+            var reserva = servicioReservas.crearReserva(
+                    "Carlos Pérez",
+                    habitacionDisponible,
+                    hoy,
+                    hoy.plusDays(3));
+
+            // ASSERT
+            assertNotNull(reserva);
+            assertEquals("Carlos Pérez", reserva.huesped());
+            assertEquals(360.0, reserva.totalPagado());
+            assertNotNull(reserva.codigoReserva());
         }
 
         @Test
         @DisplayName("Debe aplicar 10% de descuento para estancias de 7+ noches")
         void debeAplicarDescuentoParaEstanciaLarga() {
-            // TODO: Implementa esta prueba.
-            //
-            // ARRANGE:
-            // - El total SIN descuento sería: 7 noches × $120.0 = $840.0
-            // - Con 10% de descuento: $840.0 - $84.0 = $756.0
-            // - Configura el mock de pasarelaPago para que acepte el cobro de $756.0
-            // Pista: when(pasarelaPago.procesarCobro(eq("Ana López"),
-            // eq(756.0))).thenReturn(true)
-            //
-            // ACT:
-            // - Crea una reserva para "Ana López", habitacionDisponible,
-            // desde hoy hasta hoy.plusDays(7)
-            //
-            // ASSERT:
-            // - Verifica que el totalPagado sea exactamente 756.0
+            // ARRANGE
+            when(pasarelaPago.procesarCobro(eq("Ana López"), eq(756.0)))
+                    .thenReturn(true);
+
+            // ACT
+            var reserva = servicioReservas.crearReserva(
+                    "Ana López",
+                    habitacionDisponible,
+                    hoy,
+                    hoy.plusDays(7));
+
+            // ASSERT
+            assertNotNull(reserva);
+            assertEquals(756.0, reserva.totalPagado());
         }
     }
 
@@ -124,49 +122,46 @@ class ServicioReservasTest {
         @Test
         @DisplayName("Debe lanzar IllegalStateException si la habitación NO está disponible")
         void debeLanzarExcepcionSiHabitacionNoDisponible() {
-            // TODO: Implementa esta prueba.
-            //
-            // NOTA: No se necesita ARRANGE porque habitacionNoDisponible ya fue
-            // configurada en setUp() y la excepción se lanza antes de interactuar
-            // con la pasarela de pago, por lo que no se requiere configurar mocks.
-            //
-            // ACT & ASSERT:
-            // - Usa assertThrows(IllegalStateException.class, () -> { ... })
-            // - Dentro del lambda, llama a crearReserva con la habitacionNoDisponible
-            // - Verifica que el mensaje de la excepción contiene "no está disponible"
-            //
-            // Pista: assertThrows retorna la excepción lanzada.
-            // Puedes hacer: var ex = assertThrows(...);
-            // assertTrue(ex.getMessage().contains("..."))
+            // ACT & ASSERT
+            var ex = assertThrows(IllegalStateException.class, () ->
+                    servicioReservas.crearReserva(
+                            "Invitado",
+                            habitacionNoDisponible,
+                            hoy,
+                            manana));
+
+            assertTrue(ex.getMessage().contains("no está disponible"));
         }
 
         @Test
         @DisplayName("Debe lanzar IllegalArgumentException si la fecha de salida no es posterior a la de entrada")
         void debeLanzarExcepcionSiFechasSonInvalidas() {
-            // TODO: Implementa esta prueba.
-            //
-            // ACT & ASSERT:
-            // - Llama a crearReserva con fechaEntrada = hoy y fechaSalida = hoy
-            // (misma fecha, no es posterior)
-            // - Debe lanzar IllegalArgumentException
-            // - Verifica que el mensaje contiene "fecha de salida"
+            var ex = assertThrows(IllegalArgumentException.class, () ->
+                    servicioReservas.crearReserva(
+                            "Invitado",
+                            habitacionDisponible,
+                            hoy,
+                            hoy));
+
+            assertTrue(ex.getMessage().contains("fecha de salida"));
         }
 
         @Test
         @DisplayName("Debe lanzar IllegalStateException cuando el pago es rechazado")
         void debeLanzarExcepcionSiPagoRechazado() {
-            // TODO: Implementa esta prueba.
-            //
-            // ARRANGE:
-            // - Configura el mock de pasarelaPago para que retorne FALSE
-            // (simula un pago rechazado).
-            // Pista: when(pasarelaPago.procesarCobro(anyString(),
-            // anyDouble())).thenReturn(false)
-            //
-            // ACT & ASSERT:
-            // - Llama a crearReserva con habitacionDisponible, hoy, manana
-            // - Verifica que lanza IllegalStateException
-            // - Verifica que el mensaje contiene "rechazado"
+            // ARRANGE
+            when(pasarelaPago.procesarCobro(anyString(), anyDouble()))
+                    .thenReturn(false);
+
+            // ACT & ASSERT
+            var ex = assertThrows(IllegalStateException.class, () ->
+                    servicioReservas.crearReserva(
+                            "Invitado",
+                            habitacionDisponible,
+                            hoy,
+                            manana));
+
+            assertTrue(ex.getMessage().contains("rechazado"));
         }
     }
 
@@ -181,50 +176,57 @@ class ServicioReservasTest {
         @Test
         @DisplayName("Debe enviar notificación exactamente UNA vez después de una reserva exitosa")
         void debeEnviarNotificacionUnaVez() {
-            // TODO: Implementa esta prueba.
-            //
-            // ARRANGE:
-            // - Configura pasarelaPago para que acepte el cobro
-            //
-            // ACT:
-            // - Crea una reserva exitosa
-            //
-            // ASSERT con verify():
-            // - Usa verify(servicioNotificacion,
-            // times(1)).enviarConfirmacion(any(Reserva.class))
-            // para confirmar que la notificación se envió exactamente 1 vez
+            // ARRANGE
+            when(pasarelaPago.procesarCobro(anyString(), anyDouble()))
+                    .thenReturn(true);
+
+            // ACT
+            servicioReservas.crearReserva(
+                    "Usuario",
+                    habitacionDisponible,
+                    hoy,
+                    manana);
+
+            // ASSERT
+            verify(servicioNotificacion, times(1))
+                    .enviarConfirmacion(any(Reserva.class));
         }
 
         @Test
         @DisplayName("NO debe enviar notificación si el pago fue rechazado")
         void noDebeEnviarNotificacionSiPagoFalla() {
-            // TODO: Implementa esta prueba.
-            //
-            // ARRANGE:
-            // - Configura pasarelaPago para que RECHACE el cobro (retorne false)
-            //
-            // ACT:
-            // - Intenta crear una reserva (usa assertThrows porque lanzará excepción)
-            //
-            // ASSERT con verify():
-            // - Usa verify(servicioNotificacion, never()).enviarConfirmacion(any())
-            // para confirmar que NUNCA se llamó a enviarConfirmacion
+            // ARRANGE
+            when(pasarelaPago.procesarCobro(anyString(), anyDouble()))
+                    .thenReturn(false);
+
+            // ACT & ASSERT
+            assertThrows(IllegalStateException.class, () ->
+                    servicioReservas.crearReserva(
+                            "Usuario",
+                            habitacionDisponible,
+                            hoy,
+                            manana));
+
+            // ASSERT
+            verify(servicioNotificacion, never()).enviarConfirmacion(any());
         }
 
         @Test
         @DisplayName("Debe llamar a procesarCobro con el monto correcto (sin descuento)")
         void debeCobraMontoCorrectoSinDescuento() {
-            // TODO: Implementa esta prueba.
-            //
-            // ARRANGE:
-            // - Configura pasarelaPago para aceptar cualquier cobro
-            //
-            // ACT:
-            // - Crea una reserva de 2 noches (2 × $120 = $240)
-            //
-            // ASSERT con verify():
-            // - verify(pasarelaPago).procesarCobro("Luis García", 240.0)
-            // - Esto verifica que se llamó al mock con los argumentos EXACTOS esperados
+            // ARRANGE
+            when(pasarelaPago.procesarCobro(anyString(), anyDouble()))
+                    .thenReturn(true);
+
+            // ACT
+            servicioReservas.crearReserva(
+                    "Luis García",
+                    habitacionDisponible,
+                    hoy,
+                    hoy.plusDays(2));
+
+            // ASSERT
+            verify(pasarelaPago).procesarCobro("Luis García", 240.0);
         }
     }
 
@@ -239,27 +241,21 @@ class ServicioReservasTest {
         @Test
         @DisplayName("calcularTotal: sin descuento para menos de 7 noches")
         void calcularTotalSinDescuento() {
-            // TODO: Implementa esta prueba SIN mocks (es lógica pura).
-            //
-            // ACT:
-            // - Llama directamente a servicioReservas.calcularTotal(100.0, 5)
-            //
-            // ASSERT:
-            // - assertEquals(500.0, total)
+            // ACT
+            double total = servicioReservas.calcularTotal(100.0, 5);
+
+            // ASSERT
+            assertEquals(500.0, total);
         }
 
         @Test
         @DisplayName("calcularTotal: con descuento del 10% para 7+ noches")
         void calcularTotalConDescuento() {
-            // TODO: Implementa esta prueba SIN mocks (es lógica pura).
-            //
-            // ACT:
-            // - Llama a servicioReservas.calcularTotal(200.0, 10)
-            // - Sin descuento sería: 200 × 10 = 2000
-            // - Con descuento 10%: 2000 - 200 = 1800
-            //
-            // ASSERT:
-            // - assertEquals(1800.0, total)
+            // ACT
+            double total = servicioReservas.calcularTotal(200.0, 10);
+
+            // ASSERT
+            assertEquals(1800.0, total);
         }
     }
 }
